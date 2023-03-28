@@ -129,3 +129,8 @@ dmypy.json
 
 # User defined
 assgn4_venv
+
+# airflow
+airflow/logs
+airflow/plugins
+airflow/working_data
