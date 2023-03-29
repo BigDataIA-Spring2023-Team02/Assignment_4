@@ -1,5 +1,7 @@
+import io
 import os
 import json
+import time
 import boto3
 import openai
 import requests
@@ -33,6 +35,19 @@ user_bucket_access = s3Res.Bucket(user_s3_bucket)
 openai.api_key = os.environ.get('OPENAI_API_KEY')
 whisper_api_key = os.getenv("WHISPER_API_KEY")
 
+# Define a function to write logs to AWS CloudWatch
+def write_logs(message: str):
+    s3ClientLogs.put_log_events(
+        logGroupName = "Assignment-04",
+        logStreamName = "UI-Logs",
+        logEvents = [
+            {
+                'timestamp' : int(time.time() * 1e3),
+                'message' : message
+            }
+        ]
+    )
+
 def list_files_in_folder(folder_name: str):
     file_list = []
     user_s3_bucket_files = s3Client.list_objects(Bucket = user_s3_bucket, Prefix = f"{folder_name}/").get('Contents')
@@ -40,7 +55,8 @@ def list_files_in_folder(folder_name: str):
     for objects in user_s3_bucket_files:
         file_path = objects['Key']
         file_path = file_path.split('/')
-        file_list.append(file_path[-1])
+        if file_path[-1] != '':
+            file_list.append(file_path[-1])
     
     if (len(file_list)!=0):
         return file_list
@@ -53,26 +69,33 @@ def upload_file_s3_bucket(file: str, folder_name: str):
 
 # Define a function to transcribe a media file using the Whispr API.
 def transcribe_media_file(s3_object_key):
-    mp3_url = s3Client.generate_presigned_url('get_object',
-                                        Params={'Bucket': user_s3_bucket,
-                                                'Key': s3_object_key})
-                            
-    url = "https://transcribe.whisperapi.com"
-    headers = {'Authorization': 'Bearer ' + whisper_api_key}
-    data = {
-        "fileType": "mp3",
-        "diarization": "false",
-        "numSpeakers": "2",
-        "url": mp3_url,
-        "language": "en",
-        "task": "transcribe"
-        }
-    
-    response = requests.post(url, headers = headers, data = data)
-    
-    response_json = json.loads(response.text)
-    text = response_json['text']
+    response = s3Client.get_object(Bucket=os.environ.get('USER_BUCKET_NAME'), Key=s3_object_key)
+    audio_file = io.BytesIO(response['Body'].read())
+    audio_file.name = s3_object_key
+
+    # Transcribe the audio file using the OpenAI API
+    transcript = openai.Audio.transcribe("whisper-1", audio_file)
+    text = transcript["text"]
     return text
+
+def transcript_file_s3(s3_object_key, transcript):
+    filename = s3_object_key.split('/')[1].replace('.mp3','.txt')
+    s3Client.put_object(Bucket = os.environ.get('USER_BUCKET_NAME'), Key = 'Processed-Text-Folder/'+filename, Body = transcript)
+    return 'Processed-Text-Folder/'+filename
+
+def gpt_default_answers(selected_file):
+    prompt = f'Context: {selected_file}'+ '\n' + 'Given the transcript, i have 3 questions. Answer them in a Question/Answer format.' + '\n' + 'Q1: What is the summary of this transcript?' + '\n' + 'Q2: How many speakers are present?' + '\n' + 'Q3: Give the highlights in 3 short points.' + '\n' + 'Answer:'
+    response = openai.Completion.create(
+        engine='text-davinci-002',
+        prompt=prompt,
+        temperature=0.5,
+        max_tokens=1024,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+    answer = response.choices[0].text.strip()
+    return answer
 
 def generate_answer(question_input, selected_file):
     prompt = f'Question: {question_input}\nContext: {selected_file}\nAnswer:'
@@ -86,5 +109,4 @@ def generate_answer(question_input, selected_file):
         presence_penalty=0
     )
     answer = response.choices[0].text.strip()
-    
     return answer
