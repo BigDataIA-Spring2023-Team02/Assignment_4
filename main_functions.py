@@ -33,7 +33,6 @@ s3ClientLogs = boto3.client('logs',
 user_s3_bucket = os.environ.get('USER_BUCKET_NAME')
 user_bucket_access = s3Res.Bucket(user_s3_bucket)
 openai.api_key = os.environ.get('OPENAI_API_KEY')
-whisper_api_key = os.getenv("WHISPER_API_KEY")
 
 # Define a function to write logs to AWS CloudWatch
 def write_logs(message: str):
@@ -83,8 +82,8 @@ def transcript_file_s3(s3_object_key, transcript):
     s3Client.put_object(Bucket = os.environ.get('USER_BUCKET_NAME'), Key = 'Processed-Text-Folder/'+filename, Body = transcript)
     return 'Processed-Text-Folder/'+filename
 
-def gpt_default_answers(selected_file):
-    prompt = f'Context: {selected_file}'+ '\n' + 'Given the transcript, i have 3 questions. Answer them in a Question/Answer format.' + '\n' + 'Q1: What is the summary of this transcript?' + '\n' + 'Q2: How many speakers are present?' + '\n' + 'Q3: Give the highlights in 3 short points.' + '\n' + 'Answer:'
+def gpt_default_questions(selected_file):
+    prompt = f'Context: {selected_file}'+ '\n' + 'Given the transcript, Generate 3-4 default questionnaire on the selected transcript and generate answers for the same:'
     response = openai.Completion.create(
         engine='text-davinci-002',
         prompt=prompt,

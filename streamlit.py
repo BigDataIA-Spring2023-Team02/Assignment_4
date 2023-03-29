@@ -4,7 +4,7 @@ import boto3
 from PIL import Image
 import streamlit as st
 from dotenv import load_dotenv
-from main_functions import list_files_in_folder, upload_file_s3_bucket, transcribe_media_file, generate_answer, transcript_file_s3, gpt_default_answers, write_logs
+from main_functions import list_files_in_folder, upload_file_s3_bucket, transcribe_media_file, generate_answer, transcript_file_s3, gpt_default_questions, write_logs
 
 load_dotenv()
 
@@ -98,21 +98,11 @@ def get_text_analysis():
     if selected_file != " ":
         if default_button:
             st.write('')
-            write_logs(f"Generating Default Questions:")
-            st.write('Default Questions:')
-            st.write('Q1: What is the summary of this transcript?')
-            write_logs("Q1: What is the summary of this transcript?")
-            st.write('Q2: How many speakers are present?')
-            write_logs("Q2: How many speakers are present?")
-            st.write('Q3: Give the highlights in 3 short points.')
-            write_logs("Q3: Give the highlights in 3 short points.")
-            st.write('')
-            st.write('Answer:')
-            default_answer = gpt_default_answers(selected_file)
-            write_logs(f"Answers: {default_answer}")
+            default_answer = gpt_default_questions(selected_file)
+            write_logs(f"Default Questions: {default_answer}")
             st.write(default_answer)
         else:
-            st.warning('Please Generate Default Questions')
+            st.warning('Please generate default questions')
         
         if ask_button:
             write_logs(f"Asking Question: {question_input}")
@@ -120,7 +110,7 @@ def get_text_analysis():
             write_logs(f"Answers: {answer}")
             st.write(answer)
         else:
-            st.warning("Please ask the question")
+            st.warning("Please ask the question from the transcript file selected")
     else:
         st.warning("Please select the file first !!!")
 
