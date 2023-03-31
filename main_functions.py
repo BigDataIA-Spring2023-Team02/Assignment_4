@@ -109,3 +109,9 @@ def generate_answer(question_input, selected_file):
     )
     answer = response.choices[0].text.strip()
     return answer
+
+def read_answers_file(filename):
+    s3_object_key = f"GPT-Answers-Folder/{filename}"
+    file_obj = user_bucket_access.Object(s3_object_key)
+    file_content = file_obj.get()['Body'].read().decode('utf-8')
+    return file_content
