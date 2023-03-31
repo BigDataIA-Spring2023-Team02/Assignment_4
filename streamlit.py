@@ -71,8 +71,7 @@ def uploading_file():
                             write_logs(f"Successfully uploaded {file.name} to Adhoc-Folder.")
 
                             AIRFLOW_API_ENDPOINT = f"{AIRFLOW_URL}/api/v1/dags/Adhoc-DAG/dagRuns"
-                            payload = {"dag_run_id": "",
-                                       "conf": {"s3_object_key":f'Adhoc-Folder/{file.name}' }}
+                            payload = {"conf": {"s3_object_key":f'Adhoc-Folder/{file.name}' }}
                             response = requests.post(AIRFLOW_API_ENDPOINT, json=payload, headers= headers_airflow)
 
                             # Check the response status code
