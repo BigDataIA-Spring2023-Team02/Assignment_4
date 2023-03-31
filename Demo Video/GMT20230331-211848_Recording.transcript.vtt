@@ -1,0 +1,182 @@
+WEBVTT
+
+1
+00:00:02.790 --> 00:00:03.670
+Meet Sharad Doshi: Hmm.
+
+2
+00:00:05.090 --> 00:00:05.800
+Meet Sharad Doshi: Yeah.
+
+3
+00:00:05.930 --> 00:00:13.030
+Meet Sharad Doshi: Hi. This is okay. I will be explaining the architecture diagram of our application. So there is a user user upload
+
+4
+00:00:13.060 --> 00:00:33.010
+Meet Sharad Doshi: file to streamlit. When it got get supported into extremely it triggers the add up brag and the file that has been uploaded to stream. It will be uploaded to S. 3, which in turn has 3 sensor to whisper api, which transcribes it, and it when sends back the transfer script
+
+5
+00:00:33.010 --> 00:00:48.550
+Meet Sharad Doshi: to West 3 again. So one S. 3 again sends the text to jail on Gpt Api non gp, which in terms like, communicates with streamlined to to the transcript
+
+6
+00:00:49.130 --> 00:00:50.280
+Meet Sharad Doshi: text.
+
+7
+00:00:53.390 --> 00:01:13.150
+Meet Sharad Doshi: This is our model as service streamlit application, and on the left hand side you can see there are 3 pages where you can upload a file transcript of file, and then get the analysis that is, from the chat. Gbd: so let's first go to the upload, file page, let's browse the file and try uploading it.
+
+8
+00:01:17.880 --> 00:01:19.900
+Meet Sharad Doshi: So this is the Zoom Meeting.
+
+9
+00:01:20.780 --> 00:01:21.370
+Okay?
+
+10
+00:01:25.200 --> 00:01:31.550
+Meet Sharad Doshi: So the file is already being available in the folder, the same 5 which we were trying to upload.
+
+11
+00:01:31.780 --> 00:01:35.390
+Meet Sharad Doshi: So here we have applied the validation.
+
+12
+00:01:41.300 --> 00:01:46.640
+Meet Sharad Doshi: Same for the Zoom Meeting link. This file is also being there.
+
+13
+00:01:50.110 --> 00:01:51.250
+Meet Sharad Doshi: It.
+
+14
+00:01:55.280 --> 00:01:56.050
+Meet Sharad Doshi: Hello.
+
+15
+00:01:58.370 --> 00:01:59.160
+Meet Sharad Doshi: Okay.
+
+16
+00:02:00.830 --> 00:02:02.090
+Meet Sharad Doshi: thanks. I got it there.
+
+17
+00:02:03.450 --> 00:02:06.710
+Meet Sharad Doshi: Let's try to rename the file and upload it.
+
+18
+00:02:20.760 --> 00:02:35.470
+Meet Sharad Doshi: Yeah. So the file is being uploaded, and by this the adopt drag is being triggered. so the further process will take place. So if you'll see the in our F flow, you can see that we have 2 dots, and out that and a batch that
+
+19
+00:02:35.520 --> 00:02:40.420
+Meet Sharad Doshi: so, because from the stream with application. The adoption has been triggered, so
+
+20
+00:02:40.580 --> 00:03:07.760
+Meet Sharad Doshi: that acts have been regarded right now, and you you can see, like the transcript audio file and the Gpt default question tasks. Both the Ts have been run successfully inside these guys. We have some some sub functions like the audio file is being uploaded to the S. 3 from S. 3. It's taking it's going to the risk for Api. The file is being transcribed, and a trans. The transcript file is generated, and it has been stored in that transfer th in the transfer holder of our S. 3,
+
+21
+00:03:07.770 --> 00:03:22.110
+Meet Sharad Doshi: and from there we are taking it out and sending it to our Gpd Api, and from there it is like transcribing our the entire meeting nodes, or whatever M. P. 3 files transfer has been separated. So
+
+22
+00:03:22.130 --> 00:03:27.270
+Meet Sharad Doshi: default questions. All those things have been put up over here, and it's been uploaded to our Sd. Bucket has.
+
+23
+00:03:27.880 --> 00:03:55.120
+Meet Sharad Doshi: so we have another dag of or called is bajd so in batch that it is triggered every every day 5 in the morning. So what the process will do is, it would take all the files which are there, and AD hoc for the copy all those slides in the batch folder, and then press asset like it would send the files to the transfer, to transcribe and generate the transcript of that.
+
+24
+00:03:55.120 --> 00:04:04.260
+Meet Sharad Doshi: and generate. And further, it would send those transcript to Gpt and then generate deep default questions.
+
+25
+00:04:04.260 --> 00:04:22.300
+Meet Sharad Doshi: So the structure of the S. 3 bucket. Also it is like we have AD hoc folder batch for the Gpt. And so for the so in add up for the Whenever a user uploads the file it would go within this atop folder and the batch for it. As I said, like it would
+
+26
+00:04:22.300 --> 00:04:25.010
+Meet Sharad Doshi: create copy all the files from and up.
+
+27
+00:04:25.050 --> 00:04:28.540
+Meet Sharad Doshi: Too bad for the when the batch or that gets triggered.
+
+28
+00:04:28.570 --> 00:04:45.730
+Meet Sharad Doshi: and then the process text folder, all the transcripts are generated, and in the Gp. To answer all the Gpd. Questions Gp. Questions which we have been sent. Default questions to generate the answer from those so in the hand up folder, you can see, like there are already these files.
+
+29
+00:04:45.980 --> 00:04:51.600
+Meet Sharad Doshi: and in the process text it would generate the text, 5 of all those
+
+30
+00:04:52.170 --> 00:04:53.320
+Meet Sharad Doshi: fires
+
+31
+00:04:53.470 --> 00:05:07.290
+Meet Sharad Doshi: also we have one more option of transcribing the file manually. So here we've given option. Like to transcribe the file, whichever the file the user wants, so maybe
+
+32
+00:05:07.520 --> 00:05:18.900
+Meet Sharad Doshi: we can like pick, Zoom Meeting discussion and transcribe it. So it would generate the transcript file and then upload it to the user S. 3 bucket.
+
+33
+00:05:19.060 --> 00:05:24.230
+Meet Sharad Doshi: So These are the transcripts, and it would like upload those transcript files to this folder.
+
+34
+00:05:25.250 --> 00:05:36.400
+Meet Sharad Doshi: After that, going to the analysis page over here we can get the default question of the file which is being uploaded. Let's do it for the Zoom Meeting.
+
+35
+00:05:36.740 --> 00:05:42.940
+Meet Sharad Doshi: And yeah, these are the default questions. You can see. You can also manually enter your question and get the
+
+36
+00:05:49.990 --> 00:05:56.570
+Meet Sharad Doshi: Yeah. So we got a summary of the zoom, this Zoom Meeting discussion and that's it for a demo.
+
+37
+00:05:59.910 --> 00:06:08.210
+Meet Sharad Doshi: Yeah. So this is also like a code lab in Here we have the introduction, the architecture Stream, Latin, or the information.
+
+38
+00:06:08.460 --> 00:06:12.950
+Meet Sharad Doshi: and we have our project, like
+
+39
+00:06:13.030 --> 00:06:21.780
+Meet Sharad Doshi: the structure in assignment for what all files are there, and which folder which file is available, and all the pre requests and all.
+
+40
+00:06:22.170 --> 00:06:23.860
+Meet Sharad Doshi: So yeah.
+
+41
+00:06:24.030 --> 00:06:26.980
+Meet Sharad Doshi: And also we have added, like
+
+42
+00:06:30.700 --> 00:06:44.350
+Meet Sharad Doshi: also one thing the demo that which we have showed is running on local host, since, like we are getting some error in airflow, it is like on some authentication, error, or something.
+
+43
+00:06:44.350 --> 00:07:00.140
+Meet Sharad Doshi: But the steamlet is hosted on the seamlet cloud, and even the airflow is hosted on the Ec. To instance so. But there we are getting the Login Authentication error. So we're like showing it on the local for now.
+
+44
+00:07:01.210 --> 00:07:03.850
+Meet Sharad Doshi: So yeah, that's all.
+
+45
+00:07:04.260 --> 00:07:06.130
+Meet Sharad Doshi: Thank you so much. Thank you.
+
