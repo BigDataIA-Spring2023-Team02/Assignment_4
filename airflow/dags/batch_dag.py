@@ -1,19 +1,15 @@
 # Import necessary modules
 import os
 import io
-import json
-import time
 import boto3
 import openai
-import requests
 from airflow import DAG
 from pathlib import Path
 from dotenv import load_dotenv
 from airflow.models.param import Param
-from datetime import timedelta, datetime
+from datetime import timedelta
 from airflow.utils.dates import days_ago
 from airflow.operators.python_operator import PythonOperator
-
 
 # Set parameters for user input
 user_input = {
@@ -96,12 +92,10 @@ def transcribe_media_file():
         response = s3Client.get_object(Bucket=user_s3_bucket, Key=s3_object_key)
         audio_file = io.BytesIO(response['Body'].read())
         audio_file.name = s3_object_key
-
         # Transcribe the audio file using the OpenAI API
         transcript = openai.Audio.transcribe("whisper-1", audio_file)
         text = transcript["text"]
         text_list.append(text)
-    
     return file_list, text_list
 
 def transcript_file_s3():
@@ -124,6 +118,7 @@ def gpt_default_questions():
         if file_path[-1] != '':
             file_list.append(file_path[-1])
     
+    answer_list = []
     for i in range(len(file_list)):
         prompt = f'Context: {file_list[i]}'+ '\n' + 'Given the transcript, Generate 3-4 default questionnaire on the selected transcript and generate answers for the same:'
         response = openai.Completion.create(
@@ -136,6 +131,24 @@ def gpt_default_questions():
             presence_penalty=0
         )
         answer = response.choices[0].text.strip()
+        answer_list.append(answer)
+    return answer_list
+
+def push_answers_s3():
+    answer_list = gpt_default_questions()
+    s3_folder_name = "Batch-Folder/"
+    s3_files = s3Client.list_objects(Bucket = user_s3_bucket, Prefix = s3_folder_name).get('Contents')
+    file_list = []
+    for s3_file in s3_files:
+        file_path = s3_file['Key']
+        file_path = file_path.split('/')
+        if file_path[-1] != '':
+            file_list.append(file_path[-1])
+    
+    for i in range(len(file_list)):
+        s3_object_key = f'Batch-Folder/{file_list[i]}'
+        filename = s3_object_key.split('/')[1].replace('.mp3','_answers.txt')
+        s3Client.put_object(Bucket = user_s3_bucket, Key = 'GPT-Answers-Folder/'+filename, Body = answer_list[i])
 
 with dag:
     read_audio_files = PythonOperator(   
@@ -144,13 +157,6 @@ with dag:
     provide_context=True,
     dag=dag,
     )
-
-    # transcribe_audio_file = PythonOperator(   
-    # task_id='transcribe_audio_file_s3',
-    # python_callable = transcribe_media_file,
-    # provide_context=True,
-    # dag=dag,
-    # )
 
     transcript_file = PythonOperator(   
     task_id='transcript_file_s3',
@@ -166,5 +172,11 @@ with dag:
     dag=dag,
     )
 
-    read_audio_files >> transcript_file >> gpt_questions
-    # transcribe_audio_file
+    push_answers = PythonOperator(   
+    task_id='push_gpt_answers',
+    python_callable = push_answers_s3,
+    provide_context=True,
+    dag=dag,
+    )
+
+    read_audio_files >> transcript_file >> gpt_questions >> push_answers
