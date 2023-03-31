@@ -14,12 +14,10 @@ This repository contains a collection of Big Data Systems & Intelligence Analyti
 ## DAMG7245_Assignment_4
 
 # Link to Live Applications
-- Streamlit Application - 
-- Airflow - 
-- Codelabs - 
-
-### Case summary
-
+- Streamlit Application - https://bigdataia-spring2023-team02-assignment-4-streamlit-5xob79.streamlit.app
+- Airflow - http://54.160.87.79:8080
+- Codelabs - https://codelabs-preview.appspot.com/?file_id=1TBcYrdoadQK-Ls0QfJWQXjo0yJjhgUBBq-kn7Q2gN9E#0
+- Demo Video - https://github.com/BigDataIA-Spring2023-Team02/Assignment_4/blob/main/Demo%20Video/GMT20230331-211848_Recording_1790x956.mp4
 
 ### Project Tree:
 
