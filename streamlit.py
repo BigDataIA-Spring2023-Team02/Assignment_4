@@ -1,12 +1,27 @@
 import os
 import time
 import boto3
+import base64
+import requests
 from PIL import Image
 import streamlit as st
 from dotenv import load_dotenv
-from main_functions import list_files_in_folder, upload_file_s3_bucket, transcribe_media_file, generate_answer, transcript_file_s3, gpt_default_questions, write_logs
+from main_functions import list_files_in_folder, upload_file_s3_bucket, transcribe_media_file, generate_answer, transcript_file_s3, gpt_default_questions, write_logs, read_answers_file
 
 load_dotenv()
+
+AIRFLOW_URL = "http://localhost:8080"
+headers_airflow = {
+    "Content-Type": "application/json",
+    "Authorization": "Basic <base64-encoded-username-password>"
+
+}
+
+username_airflow = "damg7245"
+password_airflow = "spring2023"
+auth = f"{username_airflow}:{password_airflow}"
+encoded_auth = base64.b64encode(auth.encode()).decode('ascii')
+headers_airflow['Authorization'] = f"Basic {encoded_auth}"
 
 # Create an AWS S3 Resource to access resources available in user bucket
 s3Res = boto3.resource('s3',
@@ -46,21 +61,43 @@ def uploading_file():
                 
                 if file_key in s3_files_keys:
                     write_logs(f"File already available in the user bucket folder.")
-                    st.warning('File is already available in the folder !!!')
-                    st.warning('Please upload different file !!!')
+                    st.warning('File is already available in the folder. Please upload different file !!!')
                 
                 else:
                     with st.spinner('Uploading...'):
                         try:
                             upload_file_s3_bucket(file, 'Adhoc-Folder')
-                            st.success('File uploaded successfully !!!')
                             st.success(f"Successfully uploaded {file.name} to {user_s3_bucket}")
                             write_logs(f"Successfully uploaded {file.name} to Adhoc-Folder.")
+
+                            AIRFLOW_API_ENDPOINT = f"{AIRFLOW_URL}/api/v1/dags/Adhoc-DAG/dagRuns"
+                            payload = {"dag_run_id": "",
+                                       "conf": {"s3_object_key":f'Adhoc-Folder/{file.name}' }}
+                            response = requests.post(AIRFLOW_API_ENDPOINT, json=payload, headers= headers_airflow)
+
+                            # Check the response status code
+                            if response.status_code == 200:
+                                st.success("DAG triggered successfully!")
+                            else:
+                                st.error("Error triggering DAG:", response.status_code)
 
                         except Exception as e:
                             st.error('Error uploading file: ' + str(e))
                             write_logs(f"Error uploading file: {str(e)}")
                             st.write('Please try again later !!!')
+                
+                selected_file = st.selectbox('Please Select the transcript file from the processed list:', [" "] + list_files_in_folder('Processed-Text-Folder'))
+                if selected_file != " ":
+                    print('Inside selected file')
+                    filename = selected_file.split('/')[1].replace('.txt','_answers.txt')
+                    print(filename)
+                    st.write(filename)
+                    answers_response = read_answers_file(filename)
+                    print(answers_response)
+                    st.write(answers_response)
+                    
+                else:
+                    st.warning("Please select the file first !!!")
 
 def transcribe_file():
     selected_file = st.selectbox('Please Select the media file to transcribe:', [" "] + list_files_in_folder('Adhoc-Folder'))
