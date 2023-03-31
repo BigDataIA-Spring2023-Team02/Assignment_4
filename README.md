@@ -70,6 +70,27 @@ streamlit run streamlit.py
 - AWS_LOGS_SECRET_KEY = <AWS_LOGS_SECRET_KEY>
 
 
+Project Tree:
+
+
+.
+└── Assignment_4
+    ├── DAMG7245 Assignment 04.pdf
+    ├── README.md
+    ├── airflow
+    │   ├── .env
+    │   ├── dags
+    │   │   ├── adhoc_dag.py
+    │   │   └── batch_dag.py
+    │   ├── docker-compose.yaml
+    │   ├── logs
+    │   └── plugins
+    ├── main_functions.py
+    ├── meeting-intelligence-application.jpeg
+    ├── requirements.txt
+    ├── streamlit.py
+    └── working_data
+
 ========================================================================================================================
 > WE ATTEST THAT WE HAVEN’T USED ANY OTHER STUDENTS’ WORK IN OUR ASSIGNMENT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK.
 > Meet: %, Ajin: %, Siddhi: %, Akhil: %
